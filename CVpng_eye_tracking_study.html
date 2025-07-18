@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Eye Tracking Study</title>
+  <style>
+    /* Basic page styling */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+    }
+
+    /* Hide all pages by default */
+    .page {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    /* Show the active page */
+    .page.active {
+      display: block;
+    }
+
+    /* Headings styling */
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    h2 {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Content box styling */
+    .content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 0 170px;
+    }
+
+    /* Area for gaze tracking and calibration dots */
+    #gazeArea, #gazeArea2 {
+      position: relative;
+      width: 100%;
+      max-width: 750px;
+      height: 670px;
+      margin: 5px auto;
+      border: 2px solid #444;
+      background: white;
+      overflow: hidden;
+    }
+
+    /* Red calibration dots styling */
+    .calibration-point {
+      width: 20px;
+      height: 20px;
+      background-color: red;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    /* Blue dot showing current gaze position */
+    #gazeDot, #gazeDot2 {
+      width: 15px;
+      height: 15px;
+      background-color: rgba(0, 0, 255, 0.6);
+      border-radius: 50%;
+      position: absolute;
+      display: none;
+      pointer-events: none;
+      z-index: 20;
+    }
+
+    /* Button styling */
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* Consent text styling */
+    .consent-text {
+      text-align: left;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Choice options vertical layout styling */
+    .choice-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Individual choice button styling */
+    .choice-button {
+      padding: 10px;
+      background-color: #f0f0f0;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .choice-button:hover {
+      background-color: #e0e0e0;
+      border-color: #4CAF50;
+    }
+
+    /* Progress bar styling */
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background-color: #ddd;
+      border-radius: 5px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: #4CAF50;
+      transition: width 0.3s;
+    }
+
+    .cv-pause-message {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+      text-align: center;
+    }
+
+    /* Place WebGazer video in the lower left corner*/
+    #webgazerVideoFeed,
+    #webgazerFaceOverlay,
+    #webgazerVideoContainer {
+      top: auto !important;
+      bottom: 0px;
+      left: 0px; 
+    }
+
+    /* Hide WebGazer red dot */
+    #webgazerGazeDot {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Progress bar showing study progress -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+  </div>
+
+  <!-- Consent Page -->
+  <div class="page active" id="consentPage">
+    <div class="content">
+      <h1>
+        Attention Allocation in Hiring Decisions:<br>
+        An Eye-Tracking Study of Role Influence
+      </h1>
+      <h2>Informed Consent</h2>
+      <div class="consent-text">
+        <p><strong>Study Purpose:</strong> This study investigates eye movement patterns during various visual tasks. Your participation will help us understand how people process visual information.</p>
+        <p><strong>What you will do:</strong> You will view images and make choices while we track your eye movements using your camera. The study takes approximately 15-20 minutes.</p>
+        <p><strong>Privacy:</strong> Your eye tracking data will be anonymized and used only for research purposes. Your camera feed is processed locally and not stored.</p>
+        <p><strong>Voluntary Participation:</strong> You may withdraw at any time without penalty. There are no known risks associated with this study.</p>
+        <p><strong>Technical Requirements:</strong> Please ensure you have good lighting and position yourself comfortably in front of your camera.</p>
+        <p>By clicking "Agree and Participate", you consent to participate in this study. The web application will automatically enter fullscreen mode.</p>
+      </div>
+      <button onclick="agreeAndStart()">Agree and Participate</button>
+    </div>
+  </div>
+
+  <!-- Mode Selection Page -->
+  <div class="page" id="modePage">
+    <div class="content">
+      <h2>Select Study Mode</h2>
+      <p>Please choose one of the following study modes:</p>
+      <div class="choice-options">
+        <div class="choice-button" onclick="selectMode(1)">
+          <h3>Mode 1</h3>
+          <p>CV order 1,2,3,4; Manager first, then Employee</p>
+        </div>
+        <div class="choice-button" onclick="selectMode(2)">
+          <h3>Mode 2</h3>
+          <p>CV order 2,1,4,3; Manager first, then Employee</p>
+        </div>
+        <div class="choice-button" onclick="selectMode(3)">
+          <h3>Mode 3</h3>
+          <p>CV order 1,2,3,4; Employee first, then Manager</p>
+        </div>
+        <div class="choice-button" onclick="selectMode(4)">
+          <h3>Mode 4</h3>
+          <p>CV order 2,1,4,3; Employee first, then Manager</p>
+        </div>
+      </div>
+      <button onclick="nextPage()" id="nextBtnMode" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Task Page 1: Explanation before calibration -->
+  <div class="page" id="taskPage1">
+    <div class="content">
+      <h2 id="roleplayHeader1"></h2>
+      <p id="taskDescription1"></p>
+      <div style="border: 2px solid #444; background: white; width: 750px; height: 670px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+        <img src="cv0.png" alt="Example CV" style="width: 100%; height: 100%; object-fit: fill;">
+      </div>
+      <button onclick="goToCalibration()" id="nextBtnTask1">Start</button>
+    </div>
+  </div>
+
+  <!-- Gaze tracking sequence -->
+  <div class="page" id="gazeSequence1">
+    <div class="content">
+      <h2 id="gazeHeader1"></h2>
+      <p>Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
+      <div id="gazeArea">
+        <div id="gazeDot"></div>
+        <div id="cvContent" style="display:none;"></div>
+        <!-- AOI-Areas -->
+        <div id="aoiPersonal" style="position:absolute; left:0; top:0; width:50%; height:100%; pointer-events:none;"></div>
+        <div id="aoiProfessional" style="position:absolute; right:0; top:0; width:50%; height:100%; pointer-events:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Choice Page 1 -->
+  <div class="page" id="choicePage1">
+    <div class="content">
+      <h2>Make Your Choice</h2>
+      <p>Based on what you've seen, who would you hire:</p>
+      <div class="choice-options">
+        <!-- Four options for user to choose from -->
+        <div class="choice-button" onclick="makeChoice('A')">
+          <h3>Candidate 1</h3>
+        </div>
+        <div class="choice-button" onclick="makeChoice('B')">
+          <h3>Candidate 2</h3>
+        </div>
+      </div>
+      <!-- Button to continue, enabled after choice -->
+      <button onclick="nextPage()" id="nextBtn4" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Break Page -->
+  <div class="page" id="breakPage">
+    <div class="content">
+      <h2>Take a Break</h2>
+      <p>You're halfway through the study! Take a moment to relax.</p>
+      <p>When you're ready, click continue to proceed with the second part of the study.</p>
+      <button onclick="nextPage()">Continue to Part 2</button>
+    </div>
+  </div>
+
+ <!-- Task Page 2: Explanation before calibration -->
+  <div class="page" id="taskPage2">
+    <div class="content">
+      <h2 id="roleplayHeader2"></h2>
+      <p id="taskDescription2"></p>
+      <div style="border: 2px solid #444; background: white; width: 750px; height: 670px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
+        <img src="cv0.png" alt="Example CV" style="width: 100%; height: 100%; object-fit: fill;">
+      </div>
+      <button onclick="goToCalibration()" id="nextBtnTask2">Start</button>
+    </div>
+  </div>
+
+  <!-- Gaze tracking sequence 2 -->
+  <div class="page" id="gazeSequence2">
+    <div class="content">
+      <h2 id="gazeHeader2"></h2>
+      <p>Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
+      <div id="gazeArea2">
+        <div id="gazeDot2"></div>
+        <div id="cvContent2" style="display:none;"></div>
+        <!-- AOI-Areas -->
+        <div id="aoiPersonal2" style="position:absolute; left:0; top:0; width:50%; height:100%; pointer-events:none;"></div>
+        <div id="aoiProfessional2" style="position:absolute; right:0; top:0; width:50%; height:100%; pointer-events:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Choice Page 2: User makes a decision -->
+  <div class="page" id="choicePage2">
+    <div class="content">
+      <h2>Make Your Choice</h2>
+      <p>Based on what you've seen, who would you hire:</p>
+      <div class="choice-options">
+        <!-- Four options for user to choose from -->
+        <div class="choice-button" onclick="makeChoice('C')">
+          <h3>Candidate 1</h3>
+        </div>
+        <div class="choice-button" onclick="makeChoice('D')">
+          <h3>Candidate 2</h3>
+        </div>
+      </div>
+      <!-- Button to continue, enabled after choice -->
+      <button onclick="nextPage()" id="nextBtn5" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Completion Page: End of study -->
+  <div class="page" id="completionPage">
+    <div class="content">
+      <h2>Study Complete!</h2>
+      <p>Thank you for participating in our eye tracking study. Your data has been collected successfully.</p>
+      <p>You can now download your gaze tracking data or finish the study.</p>
+      <!-- Button to download gaze data -->
+      <button onclick="downloadData()" id="downloadBtn">Download Gaze Data</button>
+    </div>
+  </div>
+
+  <script>
+    // Fullscreen functions
+    function enterFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      }
+    }
+    
+    function exitFullscreen() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    }
+
+    // Get references to HTML elements
+    const progressFill = document.getElementById('progressFill');
+    const gazeArea = document.getElementById('gazeArea');
+    const gazeArea2 = document.getElementById('gazeArea2');
+    const gazeDot = document.getElementById('gazeDot');
+    const gazeDot2 = document.getElementById('gazeDot2');
+    const cvContent = document.getElementById('cvContent');
+    const cvContent2 = document.getElementById('cvContent2');
+    // Update pages array to include modePage
+    const pages = ['consentPage', 'modePage', 'taskPage1', 'gazeSequence1', 'choicePage1', 'breakPage', 'taskPage2', 'gazeSequence2', 'choicePage2', 'completionPage'];
+
+    // Array to store gaze tracking data
+    let gazeData = [];
+
+    // Positions for calibration points (percentages of area)
+    let calibrationPoints = [
+      [5, 5], [50, 5], [95, 5],
+      [5, 50], [50, 50], [95, 50],
+      [5, 95], [50, 95], [95, 95]
+    ];
+
+    let currentPageIndex = 0; // which page is currently shown
+    let currentPoint = 0; // which calibration point is active
+    let collecting = false; // whether gaze data is currently being collected
+    let userChoice = []; // store user's choices for each sequence
+    let currentSection = ''; // save name of current section to gaze tracking table
+
+    // Add mode and role tracking variables
+    let selectedMode = null;
+    let cvOrder = [];
+    let roleOrder = [];
+    let currentRole = '';
+    const modeNames = {
+      1: "Mode1_1234_ManagerFirst",
+      2: "Mode2_2143_ManagerFirst", 
+      3: "Mode3_1234_EmployeeFirst",
+      4: "Mode4_2143_EmployeeFirst"
+    };
+
+    // Preload images
+    let preloadedImages = {};
+    
+    function preloadImages() {
+      const imageFiles = ['cv0.png', 'cv1.png', 'cv2.png', 'cv3.png', 'cv4.png'];
+      
+      imageFiles.forEach(filename => {
+        const img = new Image();
+        img.onload = function() {
+          console.log(`Preloaded: ${filename}`);
+        };
+        img.onerror = function() {
+          console.error(`Failed to preload: ${filename}`);
+        };
+        img.src = filename;
+        preloadedImages[filename] = img;
+      });
+    }
+
+    // Select mode and configure CV/role order
+    function selectMode(mode) {
+      selectedMode = mode;
+      
+      // Configure CV order and role order based on mode
+      switch(mode) {
+        case 1: cvOrder = [1,2,3,4]; roleOrder = ['Manager', 'Employee']; break;
+        case 2: cvOrder = [2,1,4,3]; roleOrder = ['Manager', 'Employee']; break;
+        case 3: cvOrder = [1,2,3,4]; roleOrder = ['Employee', 'Manager']; break;
+        case 4: cvOrder = [2,1,4,3]; roleOrder = ['Employee', 'Manager']; break;
+      }
+      
+      // Update role titles in task pages
+      updateRoleTitles();
+      
+      // Enable continue button
+      document.getElementById('nextBtnMode').disabled = false;
+      
+      // Highlight selected choice
+      document.querySelectorAll('#modePage .choice-button').forEach(btn => {
+        btn.style.backgroundColor = '#f0f0f0';
+        btn.style.borderColor = '#ddd';
+      });
+      event.target.closest('.choice-button').style.backgroundColor = '#e8f5e8';
+      event.target.closest('.choice-button').style.borderColor = '#4CAF50';
+    }
+
+    // Task descriptions for each role
+    const managerDescription = "Imagine you are a manager. You need to review two candidates for a job position. Your task is to pay attention to their resumes and make a hiring decision based on what you see. The CVs will be shown for x seconds each. Here is an example CV";
+    const employeeDescription = "Imagine you are an employee and in your company the whole team can help decide who will be hired. You need to review two candidates for a job position. Your task is to pay attention to their resumes and make a hiring decision based on what you see. The CVs will be shown for x seconds each. Here is an example CV";
+
+    const managerTitle = "Roleplay 1: Manager";
+    const employeeTitle = "Roleplay 1: Employee";
+
+    // Update role titles based on selected mode
+    function updateRoleTitles() {
+      // Update roleplay headers
+      document.getElementById('roleplayHeader1').textContent = roleOrder[0] === 'Manager' ? managerTitle : employeeTitle;
+      document.getElementById('roleplayHeader2').textContent = roleOrder[1] === 'Manager' ? managerTitle : employeeTitle;
+
+      // Update gaze sequence headers
+      document.getElementById('gazeHeader1').textContent = roleOrder[0] === 'Manager' ? managerTitle : employeeTitle;
+      document.getElementById('gazeHeader2').textContent = roleOrder[1] === 'Manager' ? managerTitle : employeeTitle;
+
+      // Update task page descriptions
+      document.getElementById('taskDescription1').textContent = roleOrder[0] === 'Manager' ? managerDescription : employeeDescription;
+      document.getElementById('taskDescription2').textContent = roleOrder[1] === 'Manager' ? managerDescription : employeeDescription;
+    }
+
+    // Helper functions to get current elements based on active sequence
+    function getCurrentGazeArea() {
+      return pages[currentPageIndex] === 'gazeSequence1' ? gazeArea : gazeArea2;
+    }
+
+    function getCurrentGazeDot() {
+      return pages[currentPageIndex] === 'gazeSequence1' ? gazeDot : gazeDot2;
+    }
+
+    function getCurrentCvContent() {
+      return pages[currentPageIndex] === 'gazeSequence1' ? cvContent : cvContent2;
+    }
+
+    // Update the progress bar based on current page
+    function updateProgress() {
+      const progressPercent = (currentPageIndex / (pages.length - 1)) * 100;
+      progressFill.style.width = progressPercent + '%';
+    }
+
+    // Move to the next page in the study
+    function nextPage() {
+      if (currentPageIndex < pages.length - 1) {
+        stopTracking(); // stop gaze tracking when leaving a page
+        document.getElementById(pages[currentPageIndex]).classList.remove('active'); // Hide current page
+        // Show next page
+        currentPageIndex++;
+        const nextPageId = pages[currentPageIndex];
+        document.getElementById(nextPageId).classList.add('active');
+        updateProgress();
+        // Start calibration automatically when a gazeSequence page is activated
+        if (nextPageId === 'gazeSequence1' || nextPageId === 'gazeSequence2') {
+          setTimeout(() => {
+            startCalibration();
+          }, 100);
+        }
+      }
+    }
+
+    // Show CV content in the gaze area
+    function showCV(cvNumber) {
+      const currentCvContentEl = getCurrentCvContent();
+      currentCvContentEl.style.display = 'block';
+      let imgSrc = `cv${cvNumber}.png`;
+      currentSection = `cv${cvNumber}`;
+      currentCvContentEl.innerHTML = `<img src="${imgSrc}" alt="CV${cvNumber}" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:fill;">`;
+      startTracking();
+      updateProgress();
+    }
+
+    // Handle user choice selection
+    function makeChoice(choice) {
+      // Determine sequence index based on current page
+      let seqIdx = (pages[currentPageIndex] === 'choicePage1') ? 0 : 1;
+      userChoice[seqIdx] = choice;
+      
+      // Update all existing gaze data entries for this sequence with the choice
+      const cvSections = seqIdx === 0 ? [`cv${cvOrder[0]}`, `cv${cvOrder[1]}`] : [`cv${cvOrder[2]}`, `cv${cvOrder[3]}`];
+      gazeData.forEach(entry => {
+        if (cvSections.includes(entry.section)) {
+          entry.choice = choice;
+        }
+      });
+      
+      // Enable the correct continue button based on current page
+      if (pages[currentPageIndex] === 'choicePage1') {
+        document.getElementById('nextBtn4').disabled = false;
+      } else if (pages[currentPageIndex] === 'choicePage2') {
+        document.getElementById('nextBtn5').disabled = false;
+      }
+
+      // Highlight selected choice
+      document.querySelectorAll('.choice-button').forEach(btn => {
+        btn.style.backgroundColor = '#f0f0f0';
+        btn.style.borderColor = '#ddd';
+      });
+      event.target.closest('.choice-button').style.backgroundColor = '#e8f5e8';
+      event.target.closest('.choice-button').style.borderColor = '#4CAF50';
+    }
+
+    // Start the sequence of showing CVs
+    function startCVSequence(cvNumbers, gazeSequencePage, choicePage) {
+      // Set current role based on which sequence we're in
+      currentRole = (gazeSequencePage === 'gazeSequence1') ? roleOrder[0] : roleOrder[1];
+      
+      showCV(cvNumbers[0]);
+      setTimeout(() => {
+        // Pause: show transition text in gazeArea, keep tracking
+        const currentCvContentEl = getCurrentCvContent();
+        currentCvContentEl.className = 'cv-pause-message';
+        currentCvContentEl.style.display = 'flex';
+        currentCvContentEl.innerHTML = '<h2>Please stay focused.<br>The next candidate will be shown in a moment.</h2>';
+        currentSection = 'empty';
+        updateProgress();
+        setTimeout(() => {
+          currentCvContentEl.className = 'cv-container';
+          currentCvContentEl.style.display = 'block';
+          showCV(cvNumbers[1]);
+          setTimeout(() => {
+            stopTracking();
+            currentCvContentEl.style.display = 'none';
+            document.getElementById(gazeSequencePage).classList.remove('active');
+            document.getElementById(choicePage).classList.add('active');
+            currentPageIndex++;
+            updateProgress();
+          }, 4000); // Show second CV for 4 seconds
+        }, 2000); // Show pause message for 2 seconds
+      }, 4000); // Show first CV for 4 seconds
+    }
+
+    // Start gaze calibration
+    function startCalibration() {
+      currentPoint = 0;
+      collecting = false; // Don't collect gaze data during calibration
+      const currentGazeArea = getCurrentGazeArea();
+      const currentGazeDotEl = getCurrentGazeDot();
+      const currentCvContentEl = getCurrentCvContent();
+      
+      currentGazeArea.innerHTML = '';
+      currentGazeArea.appendChild(currentGazeDotEl);
+      currentGazeArea.appendChild(currentCvContentEl);
+      showCalibrationPoint();
+    }
+
+    // Show a single calibration dot for the user to click
+    function showCalibrationPoint() {
+      const currentGazeArea = getCurrentGazeArea();
+      const [percentX, percentY] = calibrationPoints[currentPoint];
+      const x = (percentX / 100) * currentGazeArea.offsetWidth;
+      const y = (percentY / 100) * currentGazeArea.offsetHeight;
+
+      const dot = document.createElement('div');
+      dot.className = 'calibration-point';
+      dot.style.left = `${x - 10}px`;
+      dot.style.top = `${y - 10}px`;
+      // When user clicks the dot, move to next calibration point
+      dot.onclick = () => {
+        dot.remove();
+        currentPoint++;
+
+        if (currentPoint < calibrationPoints.length) {
+          showCalibrationPoint();
+        } else {
+          setTimeout(() => {
+            // Use CV order from selected mode
+            if (pages[currentPageIndex] === 'gazeSequence1') {
+              startCVSequence([cvOrder[0], cvOrder[1]], 'gazeSequence1', 'choicePage1');
+            } else if (pages[currentPageIndex] === 'gazeSequence2') {
+              startCVSequence([cvOrder[2], cvOrder[3]], 'gazeSequence2', 'choicePage2');
+            }
+          }, 50); // Short break, then show CVs
+        }
+      };
+      currentGazeArea.appendChild(dot);
+    }
+
+    // Start collecting gaze data and show gaze dot
+    function startTracking() {
+      if (webgazer.isReady()) {
+        webgazer.resume();
+        collecting = true;
+        const currentGazeDotEl = getCurrentGazeDot();
+        currentGazeDotEl.style.display = "block";
+      }
+    }
+
+    // Stop collecting gaze data and hide gaze dot
+    function stopTracking() {
+      collecting = false;
+      const currentGazeDotEl = getCurrentGazeDot();
+      currentGazeDotEl.style.display = "none";
+    }
+
+    // Download gaze data as CSV file
+    function downloadData() {
+      if (gazeData.length === 0) {
+        alert("No data recorded.");
+        return;
+      }
+      let csv = "x,y,error,timestamp,targetX,targetY,section,aoi,choice,mode,role\n";
+      gazeData.forEach(row => {
+        csv += `${row.x},${row.y},${row.error},${row.timestamp},${row.targetX},${row.targetY},${row.section},${row.aoi},${row.choice},${row.mode},${row.role}\n`;
+      });
+      const blob = new Blob([csv], { type: "text/csv" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "gaze_data.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      exitFullscreen();
+    }
+
+    // Initialize WebGazer
+    function initializeWebGazer() {
+      const script = document.createElement('script');
+      script.src = 'https://webgazer.cs.brown.edu/webgazer.js';
+      script.onload = function () {
+        // Listen for gaze data from WebGazer
+        webgazer.setGazeListener((data, timestamp) => {
+          if (!collecting || !data) return;
+
+          // Get gaze position relative to calibration area
+          const currentGazeArea = getCurrentGazeArea();
+          const currentGazeDotEl = getCurrentGazeDot();
+          const rect = currentGazeArea.getBoundingClientRect();
+          const x = data.x - rect.left;
+          const y = data.y - rect.top;
+
+          // Only record gaze if inside the area
+          if (x >= 0 && y >= 0 && x <= currentGazeArea.offsetWidth && y <= currentGazeArea.offsetHeight) {
+            currentGazeDotEl.style.left = x + "px";
+            currentGazeDotEl.style.top = y + "px";
+
+            // Determine AOI
+            let aoi = '';
+            if (x < currentGazeArea.offsetWidth / 2) {
+              aoi = 'personal';
+            } else {
+              aoi = 'professional';
+            }
+
+            // Determine which sequence the current CV belongs to
+            // seqIdx = 0 for first pair, seqIdx = 1 for second pair, null otherwise
+            let seqIdx = (currentSection === `cv${cvOrder[0]}` || currentSection === `cv${cvOrder[1]}`) ? 0 : 
+                        (currentSection === `cv${cvOrder[2]}` || currentSection === `cv${cvOrder[3]}`) ? 1 : null;
+            gazeData.push({
+              x: x.toFixed(2),
+              y: y.toFixed(2),
+              error: data.eyeFeatures?.left?.ellipse?.major?.toFixed(2) || "",
+              timestamp: timestamp,
+              targetX: x.toFixed(2),
+              targetY: y.toFixed(2),
+              section: currentSection,
+              aoi: aoi, // AOI (Area of Interest)
+              // Save the user's choice for the corresponding sequence in each row
+              choice: seqIdx !== null ? (userChoice[seqIdx] || '') : '',
+              mode: modeNames[selectedMode] || '',
+              role: currentRole
+            });
+          }
+        }).begin()
+          // Hide video and overlays from WebGazer
+          .showVideo(false)
+          .showFaceOverlay(false)
+          .showFaceFeedbackBox(false);
+      };
+      document.body.appendChild(script);
+    }
+
+    function goToCalibration() {
+      document.getElementById(pages[currentPageIndex]).classList.remove('active');
+      currentPageIndex++;
+      document.getElementById(pages[currentPageIndex]).classList.add('active');
+      updateProgress();
+      setTimeout(() => {
+        startCalibration();
+      }, 100); // slight delay to ensure page is visible
+    }
+
+    function agreeAndStart() {
+      enterFullscreen();
+      nextPage();
+    }
+
+    window.onload = function () {
+      preloadImages(); // Preload all CV images
+      initializeWebGazer();
+      updateProgress();
+    };
+  </script>
+</body>
+</html>
