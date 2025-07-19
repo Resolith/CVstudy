@@ -245,10 +245,19 @@
     <div class="content">
       <h2 id="roleplayHeader1"></h2>
       <p id="taskDescription1"></p>
+      <button onclick="nextPage()" id="nextBtnTask1">Continue</button>
+    </div>
+  </div>
+
+  <!-- Sample CV Page 1 -->
+  <div class="page" id="sampleCVPage1">
+    <div class="content">
+      <h2>Example CV</h2>
+      <p>This is a sample CV. Please take a moment to look at it before starting the actual task.</p>
       <div style="border: 2px solid #444; background: white; width: 670px; height: 670px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
         <img src="cv0.png" alt="Example CV" style="width: 100%; height: 100%; object-fit: fill;">
       </div>
-      <button onclick="goToCalibration()" id="nextBtnTask1">Start</button>
+      <button onclick="nextPage()" id="nextBtnSampleCV1">Start</button>
     </div>
   </div>
 
@@ -256,7 +265,7 @@
   <div class="page" id="gazeSequence1">
     <div class="content">
       <h2 id="gazeHeader1"></h2>
-      <p>Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
+      <p id="calibrationInstruction1">Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
       <div id="gazeArea">
         <!-- <div id="gazeDot"></div> commented out for less distraction -->
         <div id="cvContent" style="display:none;"></div>
@@ -273,7 +282,6 @@
       <h2>Make Your Choice</h2>
       <p>Based on what you've seen, who would you hire:</p>
       <div class="choice-options">
-        <!-- Four options for user to choose from -->
         <div class="choice-button" onclick="makeChoice('A')">
           <h3>Candidate 1</h3>
         </div>
@@ -296,15 +304,24 @@
     </div>
   </div>
 
- <!-- Task Page 2: Explanation before calibration -->
+  <!-- Task Page 2: Explanation before calibration -->
   <div class="page" id="taskPage2">
     <div class="content">
       <h2 id="roleplayHeader2"></h2>
       <p id="taskDescription2"></p>
+      <button onclick="nextPage()" id="nextBtnTask2">Continue</button>
+    </div>
+  </div>
+
+  <!-- Sample CV Page 2 -->
+  <div class="page" id="sampleCVPage2">
+    <div class="content">
+      <h2>Example CV</h2>
+      <p>This is a sample CV. Please take a moment to look at it before starting the actual task.</p>
       <div style="border: 2px solid #444; background: white; width: 670px; height: 670px; display: flex; align-items: center; justify-content: center; margin: 0 auto;">
         <img src="cv0.png" alt="Example CV" style="width: 100%; height: 100%; object-fit: fill;">
       </div>
-      <button onclick="goToCalibration()" id="nextBtnTask2">Start</button>
+      <button onclick="nextPage()" id="nextBtnSampleCV2">Start</button>
     </div>
   </div>
 
@@ -312,7 +329,7 @@
   <div class="page" id="gazeSequence2">
     <div class="content">
       <h2 id="gazeHeader2"></h2>
-      <p>Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
+      <p id="calibrationInstruction2">Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
       <div id="gazeArea2">
         <!-- <div id="gazeDot2"></div> commented out for less distraction -->
         <div id="cvContent2" style="display:none;"></div>
@@ -329,7 +346,6 @@
       <h2>Make Your Choice</h2>
       <p>Based on what you've seen, who would you hire:</p>
       <div class="choice-options">
-        <!-- Four options for user to choose from -->
         <div class="choice-button" onclick="makeChoice('C')">
           <h3>Candidate 1</h3>
         </div>
@@ -353,7 +369,7 @@
     </div>
   </div>
 
-  <script>
+  <script type="text/javascript">
     // Fullscreen functions
     function enterFullscreen() {
       if (!document.fullscreenElement) {
@@ -376,7 +392,20 @@
     const cvContent = document.getElementById('cvContent');
     const cvContent2 = document.getElementById('cvContent2');
     // Update pages array to include modePage
-    const pages = ['consentPage', 'modePage', 'taskPage1', 'gazeSequence1', 'choicePage1', 'breakPage', 'taskPage2', 'gazeSequence2', 'choicePage2', 'completionPage'];
+    const pages = [
+      'consentPage',
+      'modePage',
+      'taskPage1',
+      'sampleCVPage1',
+      'gazeSequence1',
+      'choicePage1',
+      'breakPage',
+      'taskPage2',
+      'sampleCVPage2',
+      'gazeSequence2',
+      'choicePage2',
+      'completionPage'
+    ];
 
     // Array to store gaze tracking data
     let gazeData = [];
@@ -527,16 +556,23 @@
     function makeChoice(choice) {
       // Determine sequence index based on current page
       let seqIdx = (pages[currentPageIndex] === 'choicePage1') ? 0 : 1;
-      userChoice[seqIdx] = choice;
-      
-      // Update all existing gaze data entries for this sequence with the choice
+      // Map choice to CV number
+      let chosenCv;
+      if (seqIdx === 0) {
+        chosenCv = choice === 'A' ? `cv${cvOrder[0]}` : `cv${cvOrder[1]}`;
+      } else {
+        chosenCv = choice === 'C' ? `cv${cvOrder[2]}` : `cv${cvOrder[3]}`;
+      }
+      userChoice[seqIdx] = chosenCv;
+
+      // Update all existing gaze data entries for this sequence with the CV choice
       const cvSections = seqIdx === 0 ? [`cv${cvOrder[0]}`, `cv${cvOrder[1]}`] : [`cv${cvOrder[2]}`, `cv${cvOrder[3]}`];
       gazeData.forEach(entry => {
         if (cvSections.includes(entry.section)) {
-          entry.choice = choice;
+          entry.choice = chosenCv;
         }
       });
-      
+
       // Enable the correct continue button based on current page
       if (pages[currentPageIndex] === 'choicePage1') {
         document.getElementById('nextBtn4').disabled = false;
@@ -555,6 +591,13 @@
 
     // Start the sequence of showing CVs
     function startCVSequence(cvNumbers, gazeSequencePage, choicePage) {
+      // Hide calibration instruction after calibration, but keep space
+      if (gazeSequencePage === 'gazeSequence1') {
+        document.getElementById('calibrationInstruction1').innerHTML = "&nbsp;"; // hide calibration instruction but keep space after calibration
+      } else if (gazeSequencePage === 'gazeSequence2') {
+        document.getElementById('calibrationInstruction2').innerHTML = "&nbsp;"; // hide calibration instruction but keep space after calibration
+      }
+
       // Set current role based on which sequence we're in
       currentRole = (gazeSequencePage === 'gazeSequence1') ? roleOrder[0] : roleOrder[1];
       
@@ -578,9 +621,9 @@
             document.getElementById(choicePage).classList.add('active');
             currentPageIndex++;
             updateProgress();
-          }, 15000); // Show second CV for 15 seconds
+          }, 5000); // Show second CV for 15 seconds  -> set to 15000 after debugging
         }, 5000); // Show pause message for 5 seconds
-      }, 15000); // Show first CV for 15 seconds
+      }, 5000); // Show first CV for 15 seconds -> set to 15000 after debugging
     }
 
     // Start gaze calibration
@@ -663,6 +706,10 @@
       link.click();
       document.body.removeChild(link);
       exitFullscreen();
+      // Stop camera use after finishing the study
+      if (window.webgazer && typeof webgazer.end === 'function') {
+        webgazer.end();
+      }
     }
 
     // Consent page button logic
