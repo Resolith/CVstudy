@@ -180,6 +180,15 @@
       width: 260px;
       box-sizing: border-box;
     }
+
+    /* Task description styling for block format and line spacing */
+    .task-description {
+      text-align: left;
+      max-width: 800px;
+      margin: 0 auto 20px auto;
+      line-height: 2.0;
+      display: block;
+    }
   </style>
 </head>
 
@@ -244,7 +253,7 @@
   <div class="page" id="taskPage1">
     <div class="content">
       <h2 id="roleplayHeader1"></h2>
-      <p id="taskDescription1"></p>
+      <p id="taskDescription1" class="task-description"></p>
       <button onclick="nextPage()" id="nextBtnTask1">Continue</button>
     </div>
   </div>
@@ -308,7 +317,7 @@
   <div class="page" id="taskPage2">
     <div class="content">
       <h2 id="roleplayHeader2"></h2>
-      <p id="taskDescription2"></p>
+      <p id="taskDescription2" class="task-description"></p>
       <button onclick="nextPage()" id="nextBtnTask2">Continue</button>
     </div>
   </div>
@@ -481,10 +490,10 @@
       event.target.closest('.choice-button').style.borderColor = '#4CAF50';
     }
 
-    // Task descriptions for each role
-    const managerDescription = "Imagine you are a manager. You need to review two candidates for a job position. Your task is to pay attention to their resumes and make a hiring decision based on what you see. The CVs will be shown for 15 seconds each. Here is an example CV";
-    const employeeDescription = "Imagine you are an employee and in your company the whole team can help decide who will be hired. You need to review two candidates for a job position. Your task is to pay attention to their resumes and make a hiring decision based on what you see. The CVs will be shown for 15 seconds each. Here is an example CV";
-
+   // Task descriptions for each role
+    const managerDescription = "Please read the following instructions carefully. You are a hiring manager at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. Your department is currently looking to hire a new full-time research assistant. The position requires a Master’s degree in biotechnology or a related field. As the hiring manager, your task is to review two candidate CVs and decide which applicant you would hire for the position. Before you begin, you will be shown a sample CV. This is just to help you get familiar with the layout and structure of the CVs. All real CVs will follow the exact same format, with sections like education, work experience, and personal information always appearing in the same locations. Only the content of the CVs will differ between applicants. After the sample CV, you will be shown two candidate CVs, one after the other. You will have 15 seconds to view each CV, so make sure to focus on the details you find most relevant for making a hiring decision. After you’ve seen both CVs, you’ll be asked the question: Who would you hire for the research assistant position? ";
+    const employeeDescription = " Please read the following instructions carefully. You are an employee at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. You work in one of the company’s lab teams, helping with sample preparation, routine testing, and other hands-on research tasks. Much of your work is collaborative and done alongside your teammates at the lab bench. Your team is now getting a new research assistant, and your manager has shown you two potential applicants. While you’re not part of the formal hiring process, you’re being asked a simple but important question: Which person would you prefer to have as your colleague in the lab? Before you begin, you’ll see a sample CV to get familiar with the layout and structure. All real CVs will follow the same format, with sections like education, work experience, and personal information always in the same place. Only the content of the CVs will vary. After the sample CV, you’ll be shown two candidate CVs, one at a time. You will have 15 seconds to view each CV, so take in the information that stands out to you as someone who will be working closely with this person. After you’ve seen both CVs, you’ll be asked the question: Who would you prefer to work with as a teammate in the lab? "
+    // Role titles for roleplay headers
     const managerTitle = "Your role: Manager";
     const employeeTitle = "Your role: Employee";
 
