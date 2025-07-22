@@ -800,7 +800,9 @@ Ready to begin with the sample CV?`;
       const blob = new Blob([csv], { type: "text/csv" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = "gaze_data.csv";
+      // Use anonCode as filename, fallback to "gaze_data.csv" if empty
+      const filename = anonCode && anonCode.trim() !== "" ? `${anonCode.trim()}.csv` : "gaze_data.csv";
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
