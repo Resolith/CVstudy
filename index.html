@@ -70,19 +70,6 @@
       z-index: 10;
     }
 
-    /* Blue dot showing current gaze position - commented out for less distraction */
-    /* Uncomment if you want to show the gaze dot
-    #gazeDot, #gazeDot2 {
-      width: 15px;
-      height: 15px;
-      background-color: rgba(0, 0, 255, 0.6);
-      border-radius: 50%;
-      position: absolute;
-      display: none;
-      pointer-events: none;
-      z-index: 20;
-    } */
-
     /* Button styling */
     button {
       background-color: #4CAF50;
@@ -106,10 +93,10 @@
     }
 
     /* Consent text styling */
-    .consent-text {
-      text-align: left;
+    .standard-text {
+      text-align: justify;
       max-width: 800px;
-      margin: 0 auto;
+      margin: 0 auto 20px auto;
       line-height: 1.6;
     }
 
@@ -205,13 +192,31 @@
         An Eye-Tracking Study of Role Influence
       </h1>
       <h2>Informed Consent</h2>
-      <div class="consent-text">
-        <p><strong>Study Purpose:</strong> This study investigates eye movement patterns during various visual tasks. Your participation will help us understand how people process visual information.</p>
-        <p><strong>What you will do:</strong> You will view images and make choices while we track your eye movements using your camera. The study takes approximately 15-20 minutes.</p>
-        <p><strong>Privacy:</strong> Your eye tracking data will be anonymized and used only for research purposes. Your camera feed is processed locally and not stored.</p>
-        <p><strong>Voluntary Participation:</strong> You may withdraw at any time without penalty. There are no known risks associated with this study.</p>
-        <p><strong>Technical Requirements:</strong> Please ensure you have good lighting and position yourself comfortably in front of your camera.</p>
-        <p>By clicking "Agree and Participate", you consent to participate in this study. The web application will automatically enter fullscreen mode.</p>
+      <div class="standard-text">
+        <p><strong>Study Purpose:</strong> This study investigates eye movement patterns during hiring decision-making tasks. Your participation will help us understand attention patterns using eye-tracking technology.</p>
+        <p><strong>What you will do:</strong> You will review candidate profiles and make hiring decisions in two different scenarios. Your eye movements will be tracked using your webcam while you view the materials. The study takes approximately 12-15 minutes to complete.</p>
+         <p><strong>Voluntary Participation:</strong> Your participation is completely voluntary. You may withdraw from the study at any time without penalty. There are no known risks associated with participation in this study.</p>
+         <p><strong>Technical Requirements:</strong>
+          <ul>
+            <li>A functioning webcam with clear view of your face</li>
+            <li>Good lighting conditions (avoid backlighting or shadows on your face)</li>
+            <li>Stable internet connection</li>
+            <li>A comfortable, stationary position where you can remain still during tasks</li>
+            <li>Note: The study will automatically enter fullscreen mode for optimal display and eye-tracking accuracy</li>
+          </ul></p>
+         <p><strong>Privacy and Data Protection:</strong> 
+          <ul>
+            <li>All data collected will be anonymized and used solely for research purposes.</li>
+            <li>Webcam data is processed locally on your device and never stored, transmitted or recorded.</li>
+            <li>You can leave the study at any time by closing the browser window.</li>
+          </ul></p>
+        <p><strong>By clicking "Agree and Participate", you confirm that you:</strong> 
+          <ul>
+            <li>Are at least 18 years old</li>
+            <li>Have read and understood the information above</li>
+            <li>Voluntarily agree to participate in this study.</li>
+            <li>Consent to the collection of anonymous eye-tracking and demographic data</li>
+          </ul></p>
       </div>
       <div class="consent-buttons" style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 30px;">
         <button id="allowCameraBtn" onclick="initializeWebGazer()">Allow Camera Use</button><!-- Camera allowance button -->
@@ -221,27 +226,89 @@
     </div>
   </div>
 
+  <!-- Anonymous Code Page -->
+  <div class="page" id="anonCodePage">
+    <div class="content">
+      <h2>Generate Your Anonymous Code</h2>
+      <div class="standard-text">
+        <p>To help us analyze the data accurately without collecting personal information, we ask you to generate a short, anonymous code. This allows us to group your data while keeping you fully anonymous. You do not need to remember or save this code.</p>
+        <ol>
+          <li>What is the first letter of your mother's first name?</li>
+          <li>What is the first letter of your father's first name?</li>
+          <li>How many older brothers do you have? (If none, enter 0)</li>
+          <li>How many older sisters do you have? (If none, enter 0)</li>
+          <li>Does your first name begin with a letter from A–M or N–Z?</li>
+            <ul>
+              <li>If A–M, enter: first</li>
+              <li>If N–Z, enter: second</li>
+            </ul>
+          <li>What month were you born in? (Please write the full name of the month, for example: March)</li>
+          <li>What is the first letter of your middle name? If you do not have a middle name, enter N.</li>
+        </ol>
+        <p>Now combine your answers into one line, in this order:<br>
+          <em>mother's initial, father's initial, number of older brothers, number of older sisters, name half (first or second), birth month, middle name initial.</em>
+        </p>
+        <p><strong>Example:</strong> M, J, 1, 2, first, March, A → becomes: <strong>MJ12firstMarchA</strong></p><br>
+      </div>
+      <label for="anonCodeInput"><strong>Please enter your combined code below:</strong></label><br>
+      <input type="text" id="anonCodeInput" style="width:300px; font-size:16px; margin:10px 0;" maxlength="30" autocomplete="off">
+      <br>
+      <button id="nextBtnAnonCode" onclick="nextPage()" disabled>Continue</button>
+    </div>
+  </div>
+
+  <!-- Demographics Page -->
+  <div class="page" id="demographicsPage">
+    <div class="content">
+      <h2>Demographic Information</h2>
+      <p>Please answer the following questions:</p>
+      <form id="demographicsForm" style="max-width:400px; margin:0 auto; text-align:left;">
+        <label for="ageInput">Age:</label><br>
+        <input type="number" id="ageInput" min="18" max="120" style="width:100px; font-size:16px;" required><br><br>
+        
+        <label>Gender:</label><br>
+        <input type="radio" id="female" name="gender" value="female" required>
+        <label for="female">Female</label><br>
+        <input type="radio" id="male" name="gender" value="male" required>
+        <label for="male">Male</label><br>
+        <input type="radio" id="nonbinary" name="gender" value="nonbinary" required>
+        <label for="nonbinary">Non-binary</label><br>
+        <input type="radio" id="prefer_not_to_say" name="gender" value="prefer_not_to_say" required>
+        <label for="prefer_not_to_say">Prefer not to say</label><br><br>
+        
+        <label>Do you have any visual impairments?</label><br>
+        <input type="radio" id="visual_no" name="visual" value="no" required>
+        <label for="visual_no">No</label><br>
+        <input type="radio" id="visual_yes" name="visual" value="yes" required>
+        <label for="visual_yes">Yes</label><br>
+        <div id="visualImpairmentMsg" style="text-align: justify; color:#b71c1c; margin-top:10px; display:none; font-weight:bold;"></div>
+        <br>
+      </form>
+      <button id="nextBtnDemographics" onclick="nextPage()" disabled>Continue</button>
+    </div>
+  </div>
+
   <!-- Mode Selection Page -->
   <div class="page" id="modePage">
     <div class="content">
       <h2>Select Study Mode</h2>
-      <p>Please choose one of the following study modes:</p>
+      <p>Please choose one of the following study modes at random:</p>
       <div class="choice-options">
-        <div class="choice-button" onclick="selectMode(1)">
+        <div class="choice-button" onclick="selectMode(1, event)">
           <h3>Mode 1</h3>
-          <p>CV order 1,2,3,4; Manager first, then Employee</p>
+          <!-- <p>CV order 1,2,3,4; Manager first, then Employee</p> -->
         </div>
-        <div class="choice-button" onclick="selectMode(2)">
+        <div class="choice-button" onclick="selectMode(2, event)">
           <h3>Mode 2</h3>
-          <p>CV order 2,1,4,3; Manager first, then Employee</p>
+          <!-- <p>CV order 2,1,4,3; Manager first, then Employee</p> -->
         </div>
-        <div class="choice-button" onclick="selectMode(3)">
+        <div class="choice-button" onclick="selectMode(3, event)">
           <h3>Mode 3</h3>
-          <p>CV order 1,2,3,4; Employee first, then Manager</p>
+          <!-- <p>CV order 1,2,3,4; Employee first, then Manager</p> -->
         </div>
-        <div class="choice-button" onclick="selectMode(4)">
+        <div class="choice-button" onclick="selectMode(4, event)">
           <h3>Mode 4</h3>
-          <p>CV order 2,1,4,3; Employee first, then Manager</p>
+          <!-- <p>CV order 2,1,4,3; Employee first, then Manager</p> -->
         </div>
       </div>
       <button onclick="nextPage()" id="nextBtnMode" disabled>Continue</button>
@@ -252,7 +319,7 @@
   <div class="page" id="taskPage1">
     <div class="content">
       <h2 id="roleplayHeader1"></h2>
-      <p id="taskDescription1" class="task-description"></p>
+      <p id="taskDescription1" class="standard-text"></p>
       <button onclick="nextPage()" id="nextBtnTask1">Continue</button>
     </div>
   </div>
@@ -316,7 +383,7 @@
   <div class="page" id="taskPage2">
     <div class="content">
       <h2 id="roleplayHeader2"></h2>
-      <p id="taskDescription2" class="task-description"></p>
+      <p id="taskDescription2" class="standard-text"></p>
       <button onclick="nextPage()" id="nextBtnTask2">Continue</button>
     </div>
   </div>
@@ -371,37 +438,23 @@
     <div class="content">
       <h2>Study Complete!</h2>
       <p>Thank you for participating in our eye tracking study. Your data has been collected successfully.</p>
-      <p>You can now download your gaze tracking data or finish the study.</p>
+      <p>Please download your gaze tracking data and send us the file.</p>
       <!-- Button to download gaze data -->
       <button onclick="downloadData()" id="downloadBtn">Download Gaze Data</button>
     </div>
   </div>
 
   <script type="text/javascript">
-    // Fullscreen functions
-    function enterFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      }
-    }
-    
-    function exitFullscreen() {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      }
-    }
-
     // Get references to HTML elements
     const progressFill = document.getElementById('progressFill');
     const gazeArea = document.getElementById('gazeArea');
     const gazeArea2 = document.getElementById('gazeArea2');
-    // const gazeDot = document.getElementById('gazeDot'); // commented out for less distraction
-    // const gazeDot2 = document.getElementById('gazeDot2'); // commented out for less distraction
     const cvContent = document.getElementById('cvContent');
     const cvContent2 = document.getElementById('cvContent2');
-    // Update pages array to include modePage
     const pages = [
       'consentPage',
+      'anonCodePage',
+      'demographicsPage',
       'modePage',
       'taskPage1',
       'sampleCVPage1',
@@ -418,6 +471,16 @@
     // Array to store gaze tracking data
     let gazeData = [];
 
+    // Store anonymous code
+    let anonCode = '';
+
+    // Store demographics
+    let demographics = {
+      age: '',
+      gender: '',
+      visual: ''
+    };
+
     // Positions for calibration points (percentages of area)
     let calibrationPoints = [
       [5, 5], [50, 5], [95, 5],
@@ -431,7 +494,7 @@
     let userChoice = []; // store user's choices for each sequence
     let currentSection = ''; // save name of current section to gaze tracking table
 
-    // Add mode and role tracking variables
+    // Mode and role tracking variables
     let selectedMode = null;
     let cvOrder = [];
     let roleOrder = [];
@@ -463,9 +526,8 @@
     }
 
     // Select mode and configure CV/role order
-    function selectMode(mode) {
+    function selectMode(mode, event) {
       selectedMode = mode;
-      
       // Configure CV order and role order based on mode
       switch(mode) {
         case 1: cvOrder = [1,2,3,4]; roleOrder = ['Manager', 'Employee']; break;
@@ -473,13 +535,10 @@
         case 3: cvOrder = [1,2,3,4]; roleOrder = ['Employee', 'Manager']; break;
         case 4: cvOrder = [2,1,4,3]; roleOrder = ['Employee', 'Manager']; break;
       }
-      
       // Update role titles in task pages
       updateRoleTitles();
-      
       // Enable continue button
       document.getElementById('nextBtnMode').disabled = false;
-      
       // Highlight selected choice
       document.querySelectorAll('#modePage .choice-button').forEach(btn => {
         btn.style.backgroundColor = '#f0f0f0';
@@ -490,8 +549,38 @@
     }
 
    // Task descriptions for each role
-    const managerDescription = "Please read the following instructions carefully.<br> <br> You are a <strong>hiring manager</strong> at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. Your department is currently looking to hire a new full-time research assistant. The position requires a Master’s degree in biotechnology or a related field. As the hiring manager, your task is to review two candidate CVs and decide which applicant you would hire for the position. <br> <br> Before you begin, you will be shown a sample CV. This is just to help you get familiar with the layout and structure of the CVs. All real CVs will follow the exact same format, with sections like education, work experience, and personal information always appearing in the same locations. Only the content of the CVs will differ between applicants. <strong>After the sample CV, you will be shown two candidate CVs, one after the other.</strong> You will have <strong>15 seconds to view each CV</strong>, so make sure to focus on the details you find most relevant for making a hiring decision. After you’ve seen both CVs, you’ll be asked the question: <br> <strong> Who would you hire for the research assistant position?</strong> ";
-    const employeeDescription = "Please read the following instructions carefully.<br> <br> You are an <strong>employee</strong> at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. You work in one of the company’s lab teams, helping with sample preparation, routine testing, and other hands-on research tasks. Much of your work is collaborative and done alongside your teammates at the lab bench. Your team is now getting a new research assistant, and your manager has shown you two potential applicants. While you’re not part of the formal hiring process, you’re being asked a simple but important question: Which person would you prefer to have as your colleague in the lab? <br> <br> Before you begin, you’ll see a sample CV to get familiar with the layout and structure. All real CVs will follow the same format, with sections like education, work experience, and personal information always in the same place. Only the content of the CVs will vary. <strong>After the sample CV, you’ll be shown two candidate CVs, one at a time. </strong> You will have <strong>15 seconds to view each CV</strong>, so take in the information that stands out to you as someone who will be working closely with this person. After you’ve seen both CVs, you’ll be asked the question: <br> <strong> Who would you prefer to work with as a teammate in the lab? </strong>"
+    const managerDescription = `
+<strong>Your Role</strong><br>
+You are a <strong>hiring manager</strong> at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. Your department is currently looking to hire a new full-time research assistant. As the hiring manager, you are responsible for reviewing candidates and making the final hiring decision.<br><br>
+<strong>The Situation</strong><br>
+Your department is hiring a new team member, and you as the hiring manager are tasked with selecting the best candidate for the research assistant position.<br><br>
+<strong>Your task:</strong> Decide which candidate you would hire for the research assistant position.<br><br>
+<strong>Step 1: Sample CV Review</strong><br>
+First, you'll see a sample CV to familiarize yourself with the format. All CVs follow the same layout, with sections like education, work experience, and personal information always in the same locations. Only the content will vary between candidates.<br><br>
+<strong>Step 2: Eye-Tracking Calibration</strong><br>
+Next, you'll complete a brief calibration process to ensure accurate eye-tracking throughout the study. You'll be asked to look at and click on a series of red dots that appear on the screen. Please keep your head as still as possible during calibration and throughout the rest of the study—this is important for accurate eye movement tracking.<br><br>
+<strong>Step 3: Candidate Evaluation</strong><br>
+You'll then view two candidate CVs, one at a time. You'll have <strong>15 seconds</strong> to view each CV, so focus on the information that stands out to you as someone making a hiring decision.<br><br>
+<strong>Step 4: Make Your Choice</strong><br>
+After seeing both CVs, you'll answer: "Who would you hire for this position?"<br><br><br>
+<strong>Remember:</strong> You'll have limited time to view each CV, so focus on what you consider important for making a hiring decision.<br><br>
+Ready to begin with the sample CV?`;
+    const employeeDescription = `
+<strong>Your Role</strong><br>
+You are an <strong>employee</strong> at NovaGenix Biotechnologies GmbH, a biotech company based in Munich. You work as part of a lab team, handling sample preparation, routine testing, and other hands-on research tasks. Much of your work is collaborative and involves working closely with teammates at the lab bench.<br><br>
+<strong>The Situation</strong><br>
+Your team is hiring a new research assistant, and your manager has asked for your input. While you're not part of the formal hiring committee, your perspective matters since you'll be working directly with this new colleague.<br><br>
+<strong>Your task:</strong> Help decide which candidate would be the better fit as your lab teammate.<br><br>
+<strong>Step 1: Sample CV Review</strong><br>
+First, you'll see a sample CV to familiarize yourself with the format. All CVs follow the same layout, with sections like education, work experience, and personal information always in the same locations. Only the content will vary between candidates.<br><br>
+<strong>Step 2: Eye-Tracking Calibration</strong><br>
+Next, you'll complete a brief calibration process to ensure accurate eye-tracking throughout the study. You'll be asked to look at and click on a series of red dots that appear on the screen. Please keep your head as still as possible during calibration and throughout the rest of the study—this is important for accurate eye movement tracking.<br><br>
+<strong>Step 3: Candidate Evaluation</strong><br>
+You'll then view two candidate CVs, one at a time. You'll have <strong>15 seconds</strong> to view each CV, so focus on the information that stands out to you as someone who will be working closely with this person.<br><br>
+<strong>Step 4: Make Your Choice</strong><br>
+After seeing both CVs, you'll answer: "Who would you prefer as your daily lab partner?"<br><br><br>
+<strong>Remember:</strong> You'll have limited time to view each CV, so focus on what you consider important for a lab colleague.<br><br>
+Ready to begin with the sample CV?`;
     // Role titles for roleplay headers
     const managerTitle = "Your role: Manager";
     const employeeTitle = "Your role: Employee";
@@ -516,22 +605,38 @@
       return pages[currentPageIndex] === 'gazeSequence1' ? gazeArea : gazeArea2;
     }
 
-    function getCurrentGazeDot() {
-      // return pages[currentPageIndex] === 'gazeSequence1' ? gazeDot : gazeDot2; // commented out for less distraction
-    }
-
     function getCurrentCvContent() {
       return pages[currentPageIndex] === 'gazeSequence1' ? cvContent : cvContent2;
     }
-
+    
     // Update the progress bar based on current page
     function updateProgress() {
       const progressPercent = (currentPageIndex / (pages.length - 1)) * 100;
       progressFill.style.width = progressPercent + '%';
     }
+    
+    // Store anonymous code when leaving the anonymous code page
+    function storeAnonCode() {
+      anonCode = document.getElementById('anonCodeInput').value.trim();
+    }
+    
+    // Store demographics when leaving the demographics page
+    function storeDemographics() {
+      demographics.age = document.getElementById('ageInput').value;
+      demographics.gender = document.querySelector('input[name="gender"]:checked').value;
+      demographics.visual = document.querySelector('input[name="visual"]:checked').value;
+    }
 
     // Move to the next page in the study
     function nextPage() {
+      // Store data when leaving specific pages
+      if (pages[currentPageIndex] === 'anonCodePage') {
+        storeAnonCode();
+      }
+      if (pages[currentPageIndex] === 'demographicsPage') {
+        storeDemographics();
+      }
+      
       if (currentPageIndex < pages.length - 1) {
         stopTracking(); // stop gaze tracking when leaving a page
         document.getElementById(pages[currentPageIndex]).classList.remove('active'); // Hide current page
@@ -629,9 +734,9 @@
             document.getElementById(choicePage).classList.add('active');
             currentPageIndex++;
             updateProgress();
-          }, 5000); // Show second CV for 15 seconds  -> set to 15000 after debugging
+          }, 15000); // Show second CV for 15 seconds
         }, 5000); // Show pause message for 5 seconds
-      }, 5000); // Show first CV for 15 seconds -> set to 15000 after debugging
+      }, 15000); // Show first CV for 15 seconds
     }
 
     // Start gaze calibration
@@ -639,10 +744,8 @@
       currentPoint = 0;
       collecting = false; // Don't collect gaze data during calibration
       const currentGazeArea = getCurrentGazeArea();
-      // const currentGazeDotEl = getCurrentGazeDot();  // commented out for less distraction
       const currentCvContentEl = getCurrentCvContent();
       currentGazeArea.innerHTML = '';
-      // currentGazeArea.appendChild(currentGazeDotEl); // commented out for less distraction
       currentGazeArea.appendChild(currentCvContentEl);
       showCalibrationPoint();
     }
@@ -684,16 +787,12 @@
       if (webgazer.isReady()) {
         webgazer.resume();
         collecting = true;
-        // const currentGazeDotEl = getCurrentGazeDot();  // commented out for less distraction
-        // currentGazeDotEl.style.display = "block";  // commented out for less distraction
       }
     }
 
     // Stop collecting gaze data and hide gaze dot
     function stopTracking() {
       collecting = false;
-      // const currentGazeDotEl = getCurrentGazeDot();  // commented out for less distraction
-      // currentGazeDotEl.style.display = "none"; // commented out for less distraction
     }
 
     // Download gaze data as CSV file
@@ -702,9 +801,9 @@
         alert("No data recorded.");
         return;
       }
-      let csv = "x,y,error,timestamp,targetX,targetY,section,aoi,choice,mode,role\n";
+      let csv = "anonCode,age,gender,visual,x,y,error,timestamp,targetX,targetY,section,aoi,choice,mode,role\n";
       gazeData.forEach(row => {
-        csv += `${row.x},${row.y},${row.error},${row.timestamp},${row.targetX},${row.targetY},${row.section},${row.aoi},${row.choice},${row.mode},${row.role}\n`;
+        csv += `${anonCode},${demographics.age},${demographics.gender},${demographics.visual},${row.x},${row.y},${row.error},${row.timestamp},${row.targetX},${row.targetY},${row.section},${row.aoi},${row.choice},${row.mode},${row.role}\n`;
       });
       const blob = new Blob([csv], { type: "text/csv" });
       const link = document.createElement("a");
@@ -736,17 +835,12 @@
 
           // Get gaze position relative to calibration area
           const currentGazeArea = getCurrentGazeArea();
-          // const currentGazeDotEl = getCurrentGazeDot();  //commented out for less distraction
           const rect = currentGazeArea.getBoundingClientRect();
           const x = data.x - rect.left;
           const y = data.y - rect.top;
 
           // Only record gaze if inside the area
           if (x >= 0 && y >= 0 && x <= currentGazeArea.offsetWidth && y <= currentGazeArea.offsetHeight) {
-            // currentGazeDotEl.style.left = x + "px";  // commented out for less distraction
-            // currentGazeDotEl.style.top = y + "px";  // commented out for less distraction
-
-            // if currentSection is 'none' (break between 2 CVs) don't record gaze data
             if (currentSection === 'none') return;
 
             // Determine AOI
@@ -796,6 +890,13 @@
       agreeBtn.disabled = false;
     }
 
+    // Exit fullscreen mode
+    function exitFullscreen() {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    }
+
     function goToCalibration() {
       document.getElementById(pages[currentPageIndex]).classList.remove('active');
       currentPageIndex++;
@@ -810,10 +911,60 @@
       enterFullscreen();
       nextPage();
     }
-
+    
+    // Validate anonymous code input
+    function setupAnonCodeValidation() {
+      const anonCodeInput = document.getElementById('anonCodeInput');
+      const nextBtnAnonCode = document.getElementById('nextBtnAnonCode');
+      
+      // Clear input and disable button initially
+      anonCodeInput.value = '';
+      nextBtnAnonCode.disabled = true;
+      
+      // Enable continue button when input is not empty
+      anonCodeInput.addEventListener('input', function() {
+        nextBtnAnonCode.disabled = this.value.trim().length === 0;
+      });
+    }
+    
+    // Validate demographics form
+    function setupDemographicsValidation() {
+      const ageInput = document.getElementById('ageInput');
+      const genderRadios = document.querySelectorAll('input[name="gender"]');
+      const visualRadios = document.querySelectorAll('input[name="visual"]');
+      const visualMsg = document.getElementById('visualImpairmentMsg');
+      const nextBtnDemographics = document.getElementById('nextBtnDemographics');
+      
+      function checkDemographicsFilled() {
+        const ageValid = ageInput.value && ageInput.value >= 18;
+        const genderSelected = document.querySelector('input[name="gender"]:checked') !== null;
+        const visualSelected = document.querySelector('input[name="visual"]:checked') !== null;
+        const visualYes = document.getElementById('visual_yes').checked;
+        
+        if (visualYes) {
+          visualMsg.style.display = 'block';
+          visualMsg.textContent = "Unfortunately, this study requires precise eye movement tracking and may not work accurately with certain visual impairments. Thank you for your interest and understanding.";
+          nextBtnDemographics.disabled = true;
+        } else {
+          visualMsg.style.display = 'none';
+          nextBtnDemographics.disabled = !(ageValid && genderSelected && visualSelected);
+        }
+      }
+      
+      // Add event listeners
+      ageInput.addEventListener('input', checkDemographicsFilled);
+      genderRadios.forEach(radio => radio.addEventListener('change', checkDemographicsFilled));
+      visualRadios.forEach(radio => radio.addEventListener('change', checkDemographicsFilled));
+    }
+      
     window.onload = function () {
+      // Initialize basic app state
       preloadImages(); // Preload all CV images
       updateProgress();
+      
+      // Setup form validation
+      setupAnonCodeValidation(); // check text field is filled
+      setupDemographicsValidation(); // check demographics form is filled
     };
   </script>
 </body>
