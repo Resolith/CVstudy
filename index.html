@@ -50,8 +50,7 @@
     /* Area for gaze tracking and calibration dots */
     #gazeArea, #gazeArea2 {
       position: relative;
-      width: 100%;
-      max-width: 670px;
+      width: 670px;
       height: 670px;
       margin: 5px auto;
       border: 2px solid #444;
@@ -396,7 +395,7 @@
   <div class="page" id="gazeSequence2">
     <div class="content">
       <h2 id="gazeHeader2"></h2>
-      <p id="calibrationInstruction2">Please look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
+      <p id="calibrationInstruction2">Look at each red dot and click on it when it appears. Keep your head still and look directly at each point.</p>
       <div id="gazeArea2">
         <!-- <div id="gazeDot2"></div> commented out for less distraction -->
         <div id="cvContent2" style="display:none;"></div>
@@ -854,8 +853,8 @@ Ready to begin with the sample CV?`;
               y: y.toFixed(2),
               error: data.eyeFeatures?.left?.ellipse?.major?.toFixed(2) || "",
               timestamp: timestamp,
-              targetX: x.toFixed(2),
-              targetY: y.toFixed(2),
+              targetX: x.toFixed(2), // targetX is the same as x and should have been deleted, but was kept because the study had already started when we noticed
+              targetY: y.toFixed(2), // targetY is the same as y and should have been deleted, but was kept because the study had already started when we noticed
               section: currentSection,
               aoi: aoi, // AOI (Area of Interest)
               // Save the user's choice for the corresponding sequence in each row
